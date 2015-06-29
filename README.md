@@ -32,7 +32,7 @@ When running maven you may simply add a new dependency along with our repository
 ```xml
 <repository>
         <id>torchmind</id>
-        <url>https://maven.torchmind.com/snapshots/</url>
+        <url>https://maven.torchmind.com/snapshot/</url>
 </repository>
 
 <dependencies>
