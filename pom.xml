@@ -49,6 +49,11 @@
                         <organization>Torchmind</organization>
                         <organizationUrl>https://www.torchmind.com</organizationUrl>
                 </contributor>
+                <contributor>
+                        <name>__0x277F</name>
+                        <email>0x277F@gmail.com</email>
+                        <timezone>Americas/Mountain</timezone>
+                </contributor>
         </contributors>
 
         <licenses>

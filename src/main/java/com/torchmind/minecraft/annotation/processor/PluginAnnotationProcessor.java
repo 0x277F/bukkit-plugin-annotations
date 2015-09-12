@@ -25,6 +25,7 @@ import com.torchmind.minecraft.annotation.dependency.SoftDependencies;
 import com.torchmind.minecraft.annotation.permission.ChildPermission;
 import com.torchmind.minecraft.annotation.permission.Permission;
 import com.torchmind.minecraft.annotation.permission.Permissions;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.PluginLoadOrder;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -203,11 +204,63 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
                         plugin.put ("softdepend", pluginDependencies);
                 }
 
+                Map<String, Map<String, Object>> commandMetadata = new HashMap<>();
+                //Begin processing external command annotations
+                Set<? extends Element> commandExecutors = roundEnv.getElementsAnnotatedWith (Command.class);
+                if (commandExecutors.size() > 0) {
+                        for (Element element : commandExecutors) {
+                                //Check to see if someone annotated a non-class with this.
+                                if (!(element instanceof TypeElement)) {
+                                        this.raiseError ("Specified Command Executor class is not a class.");
+                                        return false;
+                                }
+
+                                TypeElement typeElement = (TypeElement) element;
+                                if (typeElement.equals(mainPluginType)) continue;
+
+                                //Check to see if annotated class is actually a command executor
+                                if (!(this.processingEnv.getTypeUtils ().isAssignable (typeElement.asType (), this.processingEnv.getElementUtils ().getTypeElement (CommandExecutor.class.getName ()).asType ()))) {
+                                        this.raiseError ("Specified Command Executor class is not assignable from CommandExecutor");
+                                        return false;
+                                }
+                                Command commandAnnotation = typeElement.getAnnotation (Command.class);
+                                commandMetadata.put (commandAnnotation.name (), this.processCommand (commandAnnotation));
+                        }
+                }
+
                 Commands commands = mainPluginType.getAnnotation (Commands.class);
-                if (commands != null) plugin.put ("commands", this.processCommands (commands));
+
+                //Check the main class separately for command annotations
+                if (commands != null) {
+                        //If there are commands in the main class, merge that map with the one generated before
+                        Map<String, Map<String, Object>> joined = new HashMap<>();
+                        joined.putAll(commandMetadata);
+                        joined.putAll(this.processCommands(commands));
+                        commandMetadata = joined;
+                }
+                        plugin.put ("commands", commandMetadata);
+
+                Map<String, Map<String, Object>> permissionMetadata = new HashMap<>();
+                //Now let's do the external permission annotations, just like the commands
+                Set<? extends Element> permissionAnnotations = roundEnv.getElementsAnnotatedWith (Command.class);
+                if (permissionAnnotations.size() > 0) {
+                        for (Element element : permissionAnnotations) {
+                                if (element.equals (mainPluginElement)) continue;
+
+                                Permission permissionAnnotation = element.getAnnotation (Permission.class);
+                                permissionMetadata.put (permissionAnnotation.name (), this.processPermission (permissionAnnotation));
+                        }
+                }
 
                 Permissions permissions = mainPluginType.getAnnotation (Permissions.class);
-                if (permissions != null) plugin.put ("permissions", this.processPermissions (permissions));
+                if (permissions != null){
+                        Map<String, Map<String, Object>> joined = new HashMap<>();
+                        joined.putAll(permissionMetadata);
+                        joined.putAll(this.processPermissions(permissions));
+                        permissionMetadata = joined;
+                }
+                plugin.put ("permissions", permissionMetadata);
+
 
                 Yaml yaml = new Yaml ();
 
