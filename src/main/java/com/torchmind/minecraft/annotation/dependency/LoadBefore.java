@@ -20,6 +20,7 @@ import java.lang.annotation.*;
 
 /**
  * Defines a plugin to take precedence over within the loading queue.
+ *
  * @author Johannes Donath
  */
 @Documented

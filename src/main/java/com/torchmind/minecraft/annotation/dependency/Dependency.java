@@ -20,6 +20,7 @@ import java.lang.annotation.*;
 
 /**
  * Defines a plugin dependency.
+ *
  * @author Johannes Donath
  */
 @Documented

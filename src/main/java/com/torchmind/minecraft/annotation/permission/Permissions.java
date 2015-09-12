@@ -20,6 +20,7 @@ import java.lang.annotation.*;
 
 /**
  * Defines a set of plugin permissions.
+ *
  * @author Johannes Donath
  */
 @Documented

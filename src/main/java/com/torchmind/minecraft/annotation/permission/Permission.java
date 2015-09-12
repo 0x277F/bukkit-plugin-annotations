@@ -22,6 +22,7 @@ import java.lang.annotation.*;
 
 /**
  * Defines a plugin permission.
+ *
  * @author Johannes Donath
  */
 @Documented
@@ -29,8 +30,8 @@ import java.lang.annotation.*;
 @Repeatable (Permissions.class)
 @Retention (RetentionPolicy.SOURCE)
 public @interface Permission {
-        String name ();
-        String description () default "";
-        PermissionDefault defaultValue () default PermissionDefault.OP;
         ChildPermission[] children () default { };
+        PermissionDefault defaultValue () default PermissionDefault.OP;
+        String description () default "";
+        String name ();
 }

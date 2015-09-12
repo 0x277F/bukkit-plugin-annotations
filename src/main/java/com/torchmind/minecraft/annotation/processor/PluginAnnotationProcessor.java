@@ -57,6 +57,7 @@ import java.util.jar.Manifest;
 
 /**
  * Processes annotations provided by the {@link com.torchmind.minecraft.annotation} package.
+ *
  * @author Johannes Donath
  */
 @SupportedSourceVersion (SourceVersion.RELEASE_8)
@@ -88,7 +89,7 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
                 // make sure we found at least one instance of @Plugin before actually generating the plugin metadata
                 // Note: Stopping silently might not be the sanest choice here however this might be a saner solution
                 // than raising a warning as plugins may choose to depend on another plugin that utilizes this processor.
-                if (annotatedElements.size () == 0) return false;
+                if (annotatedElements.size () == 0) { return false; }
 
                 if (this.pluginMainElementLocated) {
                         this.raiseError ("The plugin class has already been located.");
@@ -163,25 +164,32 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
                         }
                 }
 
-                if (!plugin.containsKey ("name")) plugin.put ("name", pluginAnnotation.name ());
-                if (!plugin.containsKey ("version")) plugin.put ("version", pluginAnnotation.version ());
-                if (!"".equals (pluginAnnotation.description ())) plugin.put ("description", pluginAnnotation.description ());
-                if (PluginLoadOrder.POSTWORLD != pluginAnnotation.load ()) plugin.put ("load", pluginAnnotation.load ().toString ());
+                if (!plugin.containsKey ("name")) { plugin.put ("name", pluginAnnotation.name ()); }
+                if (!plugin.containsKey ("version")) { plugin.put ("version", pluginAnnotation.version ()); }
+                if (!"".equals (pluginAnnotation.description ())) {
+                        plugin.put ("description", pluginAnnotation.description ());
+                }
+                if (PluginLoadOrder.POSTWORLD != pluginAnnotation.load ()) {
+                        plugin.put ("load", pluginAnnotation.load ().toString ());
+                }
 
-                if (pluginAnnotation.author ().length == 1)
+                if (pluginAnnotation.author ().length == 1) {
                         plugin.put ("author", pluginAnnotation.author ()[0]);
-                else if (pluginAnnotation.author ().length > 1)
+                } else if (pluginAnnotation.author ().length > 1) {
                         plugin.put ("authors", pluginAnnotation.author ());
+                }
 
-                if (!"".equals (pluginAnnotation.website ())) plugin.put ("website", pluginAnnotation.website ());
-                if (pluginAnnotation.database ()) plugin.put ("database", pluginAnnotation.database ());
-                if (!"".equals (pluginAnnotation.prefix ())) plugin.put ("prefix", pluginAnnotation.prefix ());
+                if (!"".equals (pluginAnnotation.website ())) { plugin.put ("website", pluginAnnotation.website ()); }
+                if (pluginAnnotation.database ()) { plugin.put ("database", pluginAnnotation.database ()); }
+                if (!"".equals (pluginAnnotation.prefix ())) { plugin.put ("prefix", pluginAnnotation.prefix ()); }
 
                 Dependencies dependencies = mainPluginType.getAnnotation (Dependencies.class);
 
                 if (dependencies != null) {
                         String[] pluginDependencies = new String[dependencies.value ().length];
-                        for (int i = 0; i < pluginDependencies.length; i++) pluginDependencies[i] = dependencies.value ()[i].value ();
+                        for (int i = 0; i < pluginDependencies.length; i++) {
+                                pluginDependencies[i] = dependencies.value ()[i].value ();
+                        }
 
                         plugin.put ("depend", pluginDependencies);
                 }
@@ -190,7 +198,9 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
 
                 if (loadBeforePlugins != null) {
                         String[] loadBefore = new String[loadBeforePlugins.value ().length];
-                        for (int i = 0; i < loadBefore.length; i++) loadBefore[i] = loadBeforePlugins.value ()[i].value ();
+                        for (int i = 0; i < loadBefore.length; i++) {
+                                loadBefore[i] = loadBeforePlugins.value ()[i].value ();
+                        }
 
                         plugin.put ("loadbefore", loadBefore);
                 }
@@ -199,15 +209,17 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
 
                 if (softDependencies != null) {
                         String[] pluginDependencies = new String[softDependencies.value ().length];
-                        for (int i = 0; i < pluginDependencies.length; i++) pluginDependencies[i] = softDependencies.value ()[i].value ();
+                        for (int i = 0; i < pluginDependencies.length; i++) {
+                                pluginDependencies[i] = softDependencies.value ()[i].value ();
+                        }
 
                         plugin.put ("softdepend", pluginDependencies);
                 }
 
-                Map<String, Map<String, Object>> commandMetadata = new HashMap<>();
+                Map<String, Map<String, Object>> commandMetadata = new HashMap<> ();
                 //Begin processing external command annotations
                 Set<? extends Element> commandExecutors = roundEnv.getElementsAnnotatedWith (Command.class);
-                if (commandExecutors.size() > 0) {
+                if (commandExecutors.size () > 0) {
                         for (Element element : commandExecutors) {
                                 //Check to see if someone annotated a non-class with this.
                                 if (!(element instanceof TypeElement)) {
@@ -216,7 +228,7 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
                                 }
 
                                 TypeElement typeElement = (TypeElement) element;
-                                if (typeElement.equals(mainPluginType)) continue;
+                                if (typeElement.equals (mainPluginType)) { continue; }
 
                                 //Check to see if annotated class is actually a command executor
                                 if (!(this.processingEnv.getTypeUtils ().isAssignable (typeElement.asType (), this.processingEnv.getElementUtils ().getTypeElement (CommandExecutor.class.getName ()).asType ()))) {
@@ -233,19 +245,19 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
                 //Check the main class separately for command annotations
                 if (commands != null) {
                         //If there are commands in the main class, merge that map with the one generated before
-                        Map<String, Map<String, Object>> joined = new HashMap<>();
-                        joined.putAll(commandMetadata);
-                        joined.putAll(this.processCommands(commands));
+                        Map<String, Map<String, Object>> joined = new HashMap<> ();
+                        joined.putAll (commandMetadata);
+                        joined.putAll (this.processCommands (commands));
                         commandMetadata = joined;
                 }
-                        plugin.put ("commands", commandMetadata);
+                plugin.put ("commands", commandMetadata);
 
-                Map<String, Map<String, Object>> permissionMetadata = new HashMap<>();
+                Map<String, Map<String, Object>> permissionMetadata = new HashMap<> ();
                 //Now let's do the external permission annotations, just like the commands
                 Set<? extends Element> permissionAnnotations = roundEnv.getElementsAnnotatedWith (Command.class);
-                if (permissionAnnotations.size() > 0) {
+                if (permissionAnnotations.size () > 0) {
                         for (Element element : permissionAnnotations) {
-                                if (element.equals (mainPluginElement)) continue;
+                                if (element.equals (mainPluginElement)) { continue; }
 
                                 Permission permissionAnnotation = element.getAnnotation (Permission.class);
                                 permissionMetadata.put (permissionAnnotation.name (), this.processPermission (permissionAnnotation));
@@ -253,10 +265,10 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
                 }
 
                 Permissions permissions = mainPluginType.getAnnotation (Permissions.class);
-                if (permissions != null){
-                        Map<String, Map<String, Object>> joined = new HashMap<>();
-                        joined.putAll(permissionMetadata);
-                        joined.putAll(this.processPermissions(permissions));
+                if (permissions != null) {
+                        Map<String, Map<String, Object>> joined = new HashMap<> ();
+                        joined.putAll (permissionMetadata);
+                        joined.putAll (this.processPermissions (permissions));
                         permissionMetadata = joined;
                 }
                 plugin.put ("permissions", permissionMetadata);
@@ -280,50 +292,68 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
 
         /**
          * Processes a single command.
+         *
          * @param commandAnnotation The annotation.
          * @return The generated command metadata.
          */
         protected Map<String, Object> processCommand (Command commandAnnotation) {
                 Map<String, Object> command = new HashMap<> ();
 
-                if (commandAnnotation.aliases ().length == 1)
+                if (commandAnnotation.aliases ().length == 1) {
                         command.put ("aliases", commandAnnotation.aliases ()[0]);
-                else if (commandAnnotation.aliases ().length > 1)
+                } else if (commandAnnotation.aliases ().length > 1) {
                         command.put ("aliases", commandAnnotation.aliases ());
+                }
 
-                if (!"".equals (commandAnnotation.description ())) command.put ("description", commandAnnotation.description ());
-                if (!"".equals (commandAnnotation.permission ())) command.put ("permission", commandAnnotation.permission ());
-                if (!"".equals (commandAnnotation.permissionMessage ())) command.put ("permission-message", commandAnnotation.permissionMessage ());
-                if (!"".equals (commandAnnotation.usage ())) command.put ("usage", commandAnnotation.usage ());
+                if (!"".equals (commandAnnotation.description ())) {
+                        command.put ("description", commandAnnotation.description ());
+                }
+                if (!"".equals (commandAnnotation.permission ())) {
+                        command.put ("permission", commandAnnotation.permission ());
+                }
+                if (!"".equals (commandAnnotation.permissionMessage ())) {
+                        command.put ("permission-message", commandAnnotation.permissionMessage ());
+                }
+                if (!"".equals (commandAnnotation.usage ())) { command.put ("usage", commandAnnotation.usage ()); }
 
                 return command;
         }
 
         /**
          * Processes a set of commands.
+         *
          * @param commands The annotation.
          * @return The generated command metadata.
          */
         protected Map<String, Map<String, Object>> processCommands (Commands commands) {
                 Map<String, Map<String, Object>> commandList = new HashMap<> ();
-                for (Command command : commands.value ()) commandList.put (command.name (), this.processCommand (command));
+                for (Command command : commands.value ()) {
+                        commandList.put (command.name (), this.processCommand (command));
+                }
                 return commandList;
         }
 
         /**
          * Processes a command.
+         *
          * @param permissionAnnotation The annotation.
          * @return The generated permission metadata.
          */
         protected Map<String, Object> processPermission (Permission permissionAnnotation) {
                 Map<String, Object> permission = new HashMap<> ();
 
-                if (!"".equals (permissionAnnotation.description ())) permission.put ("description", permissionAnnotation.description ());
-                if (PermissionDefault.OP != permissionAnnotation.defaultValue ()) permission.put ("default", permissionAnnotation.defaultValue ().toString ().toLowerCase ());
+                if (!"".equals (permissionAnnotation.description ())) {
+                        permission.put ("description", permissionAnnotation.description ());
+                }
+                if (PermissionDefault.OP != permissionAnnotation.defaultValue ()) {
+                        permission.put ("default", permissionAnnotation.defaultValue ().toString ().toLowerCase ());
+                }
 
                 if (permissionAnnotation.children ().length > 0) {
                         Map<String, Boolean> childrenList = new HashMap<> ();
-                        for (ChildPermission childPermission : permissionAnnotation.children ()) childrenList.put (childPermission.value (), childPermission.inherit ());
+                        for (ChildPermission childPermission : permissionAnnotation.children ()) {
+                                childrenList.put (childPermission.value (), childPermission.inherit ());
+                        }
                         permission.put ("children", childrenList);
                 }
 
@@ -332,17 +362,21 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
 
         /**
          * Processes a set of permissions.
+         *
          * @param permissions The annotation.
          * @return The generated permission metadata.
          */
         protected Map<String, Map<String, Object>> processPermissions (Permissions permissions) {
                 Map<String, Map<String, Object>> permissionList = new HashMap<> ();
-                for (Permission permission : permissions.value ()) permissionList.put (permission.name (), this.processPermission (permission));
+                for (Permission permission : permissions.value ()) {
+                        permissionList.put (permission.name (), this.processPermission (permission));
+                }
                 return permissionList;
         }
 
         /**
          * Raises a processor error.
+         *
          * @param message The error message.
          */
         protected void raiseError (String message) {
@@ -351,6 +385,7 @@ public class PluginAnnotationProcessor extends AbstractProcessor {
 
         /**
          * Retrieves the plugin manifest (if present).
+         *
          * @return The manifest.
          */
         protected Manifest retrieveManifest () {

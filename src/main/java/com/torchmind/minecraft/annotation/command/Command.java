@@ -20,6 +20,7 @@ import java.lang.annotation.*;
 
 /**
  * Defines a plugin command.
+ *
  * @author Johannes Donath
  */
 @Documented
@@ -27,9 +28,9 @@ import java.lang.annotation.*;
 @Repeatable (Commands.class)
 @Retention (RetentionPolicy.SOURCE)
 public @interface Command {
-        String name ();
         String[] aliases () default { };
         String description () default "";
+        String name ();
         String permission () default "";
         String permissionMessage () default "";
         String usage () default "";

@@ -29,6 +29,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * Showcases the annotations.
+ *
  * @author Johannes Donath
  */
 @Plugin (name = "Test Plugin", version = "0.1.0", description = "This is a test plugin", load = PluginLoadOrder.STARTUP, author = "Akkarin", website = "http://www.example.org", database = true, prefix = "ExamplePlugin")

@@ -20,6 +20,7 @@ import java.lang.annotation.*;
 
 /**
  * Defines a soft (optional) plugin dependency.
+ *
  * @author Johannes Donath
  */
 @Documented

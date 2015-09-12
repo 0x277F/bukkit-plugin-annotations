@@ -22,6 +22,7 @@ import java.lang.annotation.*;
 
 /**
  * Defines a plugin main class.
+ *
  * @author Johannes Donath
  */
 @Documented
@@ -29,13 +30,12 @@ import java.lang.annotation.*;
 @Retention (RetentionPolicy.SOURCE)
 public @interface Plugin {
         String MANIFEST_VALUE = "###MANIFEST###";
-
-        String name () default MANIFEST_VALUE;
-        String version () default MANIFEST_VALUE;
+        String[] author () default { };
+        boolean database () default false;
         String description () default "";
         PluginLoadOrder load () default PluginLoadOrder.POSTWORLD;
-        String[] author () default {};
-        String website () default "";
-        boolean database () default false;
+        String name () default MANIFEST_VALUE;
         String prefix () default "";
+        String version () default MANIFEST_VALUE;
+        String website () default "";
 }

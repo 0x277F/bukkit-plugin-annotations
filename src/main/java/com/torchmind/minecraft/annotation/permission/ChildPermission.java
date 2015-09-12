@@ -20,12 +20,13 @@ import java.lang.annotation.*;
 
 /**
  * Defines a child permission within {@link com.torchmind.minecraft.annotation.permission.Permission}.
+ *
  * @author Johannes Donath
  */
 @Documented
 @Target (ElementType.TYPE)
 @Retention (RetentionPolicy.SOURCE)
 public @interface ChildPermission {
-        String value ();
         boolean inherit () default true;
+        String value ();
 }

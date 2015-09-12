@@ -20,6 +20,7 @@ import java.lang.annotation.*;
 
 /**
  * Defines a list of multiple plugin commands.
+ *
  * @author Johannes Donath
  */
 @Documented
